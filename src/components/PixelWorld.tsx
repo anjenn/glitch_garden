@@ -1,15 +1,25 @@
 import { useCallback, useEffect, useRef, type KeyboardEvent, type PointerEvent } from 'react';
+import { nearestEntity } from '../game/hitTest.ts';
 import { renderOverlay } from '../game/renderer.ts';
 import {
   emitParticles,
   gardenViewport,
   insideViewport,
+  registerChanges,
   stepParticles,
+  takeLanding,
+  type Birth,
   type Burst,
   type Particle,
   type Viewport,
 } from '../game/space/index.ts';
-import { WORLD_HEIGHT, WORLD_WIDTH, type Point, type WorldState } from '../game/types.ts';
+import {
+  WORLD_HEIGHT,
+  WORLD_WIDTH,
+  type PixelEntity,
+  type Point,
+  type WorldState,
+} from '../game/types.ts';
 import { toLogicalPoint, VelocityTracker } from '../input/pointer.ts';
 
 export type InteractSource = 'click' | 'key';
@@ -34,6 +44,9 @@ export function PixelWorld(props: PixelWorldProps) {
     props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const worldRef = useRef(world);
+  const seenEntities = useRef<Map<string, PixelEntity>>(new Map());
+  const births = useRef<Map<string, Birth>>(new Map());
+  const lastDrop = useRef<{ point: Point; at: number } | null>(null);
   const particles = useRef<Particle[]>([]);
   const cursor = useRef<Point | null>(null);
   const burstRef = useRef<Burst | null>(null);
@@ -111,20 +124,47 @@ export function PixelWorld(props: PixelWorldProps) {
     if (!ctx) return;
     let handle = 0;
     let lastFrame = 0;
+    let lastEntities: readonly PixelEntity[] | null = null;
     const interval = reducedMotion ? REDUCED_FRAME_MS : FRAME_MS;
     const tick = (now: number) => {
       handle = requestAnimationFrame(tick);
       if (document.visibilityState === 'hidden') return;
       if (now - lastFrame < interval) return;
       lastFrame = now;
-      if (!reducedMotion) stepParticles(particles.current);
+      const current = worldRef.current;
+
+      // Diff snapshots so new or transformed specimens animate in (client-only).
+      if (current.entities !== lastEntities) {
+        registerChanges(
+          births.current,
+          seenEntities.current,
+          current.entities,
+          now,
+          lastDrop.current,
+        );
+        seenEntities.current = new Map(current.entities.map((e) => [e.id, e]));
+        lastEntities = current.entities;
+      }
+      if (!reducedMotion) {
+        stepParticles(particles.current);
+        for (const [id, birth] of births.current) {
+          if (takeLanding(birth, now)) {
+            const landed = seenEntities.current.get(id);
+            if (landed) emitParticles(particles.current, { x: landed.x, y: landed.y }, 14);
+          }
+        }
+      }
       if (burstRef.current && now - burstRef.current.startedAt > 400) burstRef.current = null;
-      renderOverlay(ctx, worldRef.current, {
+      const hover = cursor.current ? nearestEntity(current.entities, cursor.current) : null;
+
+      renderOverlay(ctx, current, {
         time: now,
         reducedMotion,
         particles: particles.current,
         cursor: cursor.current,
         burst: burstRef.current,
+        births: births.current,
+        hoverId: hover?.id ?? null,
         viewport: viewportForCanvas(),
         canvasWidth: size.current.width,
         canvasHeight: size.current.height,
@@ -135,6 +175,13 @@ export function PixelWorld(props: PixelWorldProps) {
     return () => cancelAnimationFrame(handle);
   }, [reducedMotion, viewportForCanvas]);
 
+  const dropAt = (point: Point, source: InteractSource) => {
+    lastDrop.current = { point, at: performance.now() };
+    burstRef.current = { point, startedAt: performance.now() };
+    if (!reducedMotion) emitParticles(particles.current, point, 26);
+    onInteract(point, source);
+  };
+
   const handlePointerDown = (event: PointerEvent<HTMLCanvasElement>) => {
     onPointerActivity();
     const point = logicalFromEvent(event);
@@ -142,9 +189,7 @@ export function PixelWorld(props: PixelWorldProps) {
       onOutsideClick();
       return;
     }
-    burstRef.current = { point, startedAt: performance.now() };
-    if (!reducedMotion) emitParticles(particles.current, point, 26);
-    onInteract(point, 'click');
+    dropAt(point, 'click');
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLCanvasElement>) => {
@@ -174,10 +219,7 @@ export function PixelWorld(props: PixelWorldProps) {
     if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
     onPointerActivity();
-    const point = { x: Math.floor(WORLD_WIDTH / 2), y: Math.floor(WORLD_HEIGHT * 0.6) };
-    burstRef.current = { point, startedAt: performance.now() };
-    if (!reducedMotion) emitParticles(particles.current, point, 26);
-    onInteract(point, 'key');
+    dropAt({ x: Math.floor(WORLD_WIDTH / 2), y: Math.floor(WORLD_HEIGHT * 0.6) }, 'key');
   };
 
   return (

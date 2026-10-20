@@ -28,7 +28,7 @@ export function gardenViewport(width: number, height: number): Viewport {
 export function projectionFor(viewport: Viewport): Projection {
   const kx = viewport.width / WORLD_WIDTH;
   const ky = viewport.height / WORLD_HEIGHT;
-  const spriteScale = Math.max(0.7, Math.min(1.4, kx));
+  const spriteScale = Math.max(0.8, Math.min(1.6, kx * 1.1));
   return {
     toCssX: (x) => viewport.left + x * kx,
     toCssY: (y) => viewport.top + y * ky,

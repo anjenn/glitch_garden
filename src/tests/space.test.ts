@@ -36,12 +36,12 @@ describe('viewport & projection', () => {
     expect(p.toCssY(0)).toBe(50);
     expect(p.toCssX(WORLD_WIDTH)).toBe(580);
     expect(p.toCssY(WORLD_HEIGHT)).toBe(370);
-    expect(p.spriteScale).toBe(1);
+    expect(p.spriteScale).toBeCloseTo(1.1);
   });
 
   it('clamps the character scale for legibility', () => {
-    expect(projectionFor({ left: 0, top: 0, width: 100, height: 60 }).spriteScale).toBe(0.7);
-    expect(projectionFor({ left: 0, top: 0, width: 2000, height: 1200 }).spriteScale).toBe(1.4);
+    expect(projectionFor({ left: 0, top: 0, width: 100, height: 60 }).spriteScale).toBe(0.8);
+    expect(projectionFor({ left: 0, top: 0, width: 2000, height: 1200 }).spriteScale).toBe(1.6);
   });
 
   it('insideViewport is inclusive of the edges', () => {

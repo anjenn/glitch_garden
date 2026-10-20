@@ -19,3 +19,28 @@ export {
   type Burst,
   type SpaceFrame,
 } from './atmosphere.ts';
+export {
+  floorBottom,
+  floorTop,
+  groundDepth,
+  isInPool,
+  settleInSky,
+  settleOnGround,
+  zoneAt,
+  ISLAND,
+  POOL,
+  SKY_MARGIN,
+  type Settled,
+  type Zone,
+} from './terrain.ts';
+export {
+  fallOffset,
+  isFlashing,
+  registerChanges,
+  scaleFor,
+  takeLanding,
+  FALL_MS,
+  FLASH_MS,
+  GROW_MS,
+  type Birth,
+} from './animation.ts';
