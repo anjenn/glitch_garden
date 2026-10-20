@@ -1,4 +1,5 @@
 import { createPrng, mix32 } from './prng.ts';
+import { floorBottom, floorTop, isInPool } from './space/terrain.ts';
 import {
   ENTITY_TYPES,
   LEGAL_REGION,
@@ -32,12 +33,15 @@ export function createInitialWorld(seed: number, worldId: string, now: string): 
   const starterTypes: readonly EntityType[] = ['flower', 'tree', 'shroom', 'crystal', 'slime'];
   for (let i = 0; i < STARTER_ENTITY_COUNT; i++) {
     const type = starterTypes[rng.int(starterTypes.length)] ?? ENTITY_TYPES[0];
+    const x = rng.range(LEGAL_REGION.minX + 32, LEGAL_REGION.maxX - 32);
+    let y = rng.range(floorTop(x), floorBottom(x));
+    // Starter specimens stand on the plaza; only slimes may start in the pool.
+    if (type !== 'slime' && isInPool({ x, y })) y = floorTop(x);
     entities.push({
       id: `s-${i}`,
       type,
-      x: rng.range(LEGAL_REGION.minX + 20, LEGAL_REGION.maxX - 20),
-      // Starter specimens live on the ground band so the horizon reads clearly.
-      y: rng.range(232, LEGAL_REGION.maxY - 4),
+      x,
+      y,
       variant: pickVariant(rng.next()),
       size: pickSize(rng.next()),
       phase: rng.next() * Math.PI * 2,

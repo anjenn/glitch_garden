@@ -10,7 +10,7 @@ export const MAX_VISIBLE_EVENTS = 7;
 export const HIT_RADIUS = 21;
 export const TRANSFORM_PROBABILITY = 0.35;
 export const SCHEMA_VERSION = 1 as const;
-export const MUTATION_RULES_VERSION = 1 as const;
+export const MUTATION_RULES_VERSION = 2 as const;
 
 /** Entities are only ever spawned inside this region of the 480×320 plane. */
 export const LEGAL_REGION = { minX: 8, maxX: 471, minY: 72, maxY: 304 } as const;
@@ -29,6 +29,12 @@ export type EntityType = (typeof ENTITY_TYPES)[number];
 
 /** Types that autonomous growth is allowed to produce. */
 export const GROWTH_TYPES = ['flower', 'tree'] as const satisfies readonly EntityType[];
+/** Types that may hover in the sky instead of falling to the floor. */
+export const SKY_TYPES = ['portal', 'crystal'] as const satisfies readonly EntityType[];
+/** Types that can live in the pool. */
+export const WATER_TYPES = ['slime', 'flower'] as const satisfies readonly EntityType[];
+/** Probability that a sky click yields a floating specimen instead of a falling one. */
+export const SKY_FLOAT_PROBABILITY = 0.6;
 
 export const ACTION_KINDS = ['click', 'random_mutation', 'palette_shift', 'idle_growth'] as const;
 export type ActionKind = (typeof ACTION_KINDS)[number];

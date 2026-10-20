@@ -1,16 +1,32 @@
-// The canonical mutation reducer (spec 05). Intent in; deterministic state out.
+// The canonical mutation reducer (spec 05, rules v2). Intent in; deterministic state out.
 // No Math.random, Date.now, DOM, storage or network access in this file.
+//
+// Rules v2 adds terrain awareness (space/terrain.ts): a specimen dropped in the
+// sky or on a wall falls to the plaza floor, the waterfall pool only accepts
+// water types, and sky clicks sometimes leave a floating specimen in the air.
 
 import { nearestEntity } from './hitTest.ts';
 import { pickSize, pickVariant } from './initialWorld.ts';
 import { nextPaletteId } from './palettes.ts';
 import { streamFor, type Prng } from './prng.ts';
 import {
+  floorBottom,
+  floorTop,
+  isInPool,
+  settleInSky,
+  settleOnGround,
+  zoneAt,
+  type Zone,
+} from './space/terrain.ts';
+import {
   ENTITY_TYPES,
   GROWTH_TYPES,
   LEGAL_REGION,
   MAX_ENTITIES,
+  SKY_FLOAT_PROBABILITY,
+  SKY_TYPES,
   TRANSFORM_PROBABILITY,
+  WATER_TYPES,
   type CanonicalAction,
   type EntityType,
   type PixelEntity,
@@ -55,6 +71,33 @@ function pickType(rng: Prng, allowlist: readonly EntityType[]): EntityType {
   return type;
 }
 
+/** Types allowed to exist in a zone. */
+export function typesForZone(zone: Zone): readonly EntityType[] {
+  switch (zone) {
+    case 'sky':
+      return SKY_TYPES;
+    case 'water':
+      return WATER_TYPES;
+    default:
+      return ENTITY_TYPES;
+  }
+}
+
+/**
+ * Decide where a dropped specimen ends up. Sky drops either float (a sky type
+ * stays where it was clicked) or fall onto the floor; everything else settles
+ * on the ground or in the pool.
+ */
+export function placeDrop(point: Point, rng: Prng): { point: Point; zone: Zone } {
+  const clamped = clampToLegalRegion(point);
+  if (zoneAt(clamped) === 'sky' && rng.next() < SKY_FLOAT_PROBABILITY) {
+    const sky = settleInSky(clamped);
+    return { point: sky.point, zone: 'sky' };
+  }
+  const ground = settleOnGround(clamped);
+  return { point: ground.point, zone: ground.zone };
+}
+
 /** Spawn at `point`; when the world is full, the oldest indexed specimen is replaced. */
 function spawn(
   entities: readonly PixelEntity[],
@@ -77,14 +120,15 @@ function spawn(
   return [...kept, entity];
 }
 
-/** Change the type and variant of one entity in place (immutably). */
+/** Change the type and variant of one entity (immutably), staying inside its zone. */
 function transform(
   entities: readonly PixelEntity[],
   target: PixelEntity,
   rng: Prng,
 ): PixelEntity[] {
-  const others = ENTITY_TYPES.filter((type) => type !== target.type);
-  const type = pickType(rng, others);
+  const allowed = typesForZone(zoneAt(target));
+  const others = allowed.filter((type) => type !== target.type);
+  const type = pickType(rng, others.length > 0 ? others : allowed);
   const variant = pickVariant(rng.next());
   return entities.map((entity) =>
     entity.id === target.id ? { ...entity, type, variant } : entity,
@@ -121,17 +165,19 @@ export function applyMutation(
   switch (action.kind) {
     case 'click':
     case 'random_mutation': {
-      const point =
+      const raw =
         action.kind === 'click' ? clampToLegalRegion(action.point) : randomLegalPoint(rng);
-      const nearby = nearestEntity(world.entities, point);
+      // Transform checks the raw point so a floating specimen can be clicked in the sky.
+      const nearby = nearestEntity(world.entities, raw);
       const roll = rng.next();
       if (nearby && roll < TRANSFORM_PROBABILITY) {
         entities = transform(world.entities, nearby, rng);
         result = 'transform';
         eventEntityId = nearby.id;
       } else {
-        const type = pickType(rng, ENTITY_TYPES);
-        entities = spawn(world.entities, point, type, entityId, rng);
+        const placed = placeDrop(raw, rng);
+        const type = pickType(rng, typesForZone(placed.zone));
+        entities = spawn(world.entities, placed.point, type, entityId, rng);
         result = 'spawn';
         eventEntityId = entityId;
       }
@@ -140,10 +186,10 @@ export function applyMutation(
       break;
     }
     case 'idle_growth': {
-      const point = randomLegalPoint(rng);
-      // Autonomous growth prefers the ground band so the garden visibly "grows".
-      point.y = Math.max(point.y, 200);
-      const type = pickType(rng, GROWTH_TYPES);
+      // Autonomous growth sprouts from the plaza itself: never the sky, flowers only in water.
+      const x = rng.range(LEGAL_REGION.minX + 16, LEGAL_REGION.maxX - 16);
+      const point = settleOnGround({ x, y: rng.range(floorTop(x), floorBottom(x)) }).point;
+      const type = isInPool(point) ? 'flower' : pickType(rng, GROWTH_TYPES);
       entities = spawn(world.entities, point, type, entityId, rng);
       result = 'spawn';
       eventEntityId = entityId;

@@ -73,14 +73,15 @@ describe('applyMutation', () => {
     expect(next.updatedAt).toBe(NOW);
   });
 
-  it('a click in empty space spawns at the clamped point', () => {
+  it('a click in empty space spawns a settled specimen with the next id', () => {
     const world: WorldState = { ...createInitialWorld(5, WORLD_ID, NOW), entities: [] };
     const { next, event } = step(world, { kind: 'click', point: { x: -100, y: 9999 } });
     expect(event.result).toBe('spawn');
     expect(event.entityId).toBe('e-1');
     const spawned = next.entities.find((e) => e.id === 'e-1');
-    expect(spawned?.x).toBe(LEGAL_REGION.minX);
-    expect(spawned?.y).toBe(LEGAL_REGION.maxY);
+    expect(spawned).toBeDefined();
+    expect(spawned!.x).toBeGreaterThanOrEqual(LEGAL_REGION.minX);
+    expect(spawned!.y).toBeLessThanOrEqual(LEGAL_REGION.maxY);
     expect(ENTITY_TYPES).toContain(spawned?.type);
   });
 
