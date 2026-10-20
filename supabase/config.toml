@@ -1,0 +1,26 @@
+# Minimal Supabase CLI configuration for GLITCH.GARDEN (Track B).
+project_id = "glitch-garden"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+max_rows = 100
+
+[db]
+port = 54322
+major_version = 15
+
+[realtime]
+enabled = true
+
+[auth]
+enabled = true
+enable_anonymous_sign_ins = true
+enable_signup = false
+
+[functions.interact]
+verify_jwt = false   # the function validates the anonymous JWT itself and returns stable JSON errors
+
+[functions.growth]
+verify_jwt = false   # protected by GROWTH_JOB_SECRET header instead

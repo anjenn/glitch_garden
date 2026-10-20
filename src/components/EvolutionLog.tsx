@@ -31,7 +31,7 @@ export function EvolutionLog({ events, world, now }: EvolutionLogProps) {
         <span>{COPY.journalLive}</span>
       </div>
       <ol className="entries" id="journal" aria-live="polite" aria-relevant="additions">
-        {visible.length === 0 && <li className="entry entry-empty">{COPY.journalEmpty}</li>}
+        {visible.length === 0 && <li className="entry-empty">{COPY.journalEmpty}</li>}
         {visible.map((event) => {
           const type = typeOf(event.entityId);
           const icon = event.result === 'palette' ? '✿' : type ? ENTITY_ICONS[type] : '✦';
