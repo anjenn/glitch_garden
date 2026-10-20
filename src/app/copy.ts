@@ -31,7 +31,7 @@ export const COPY = {
   },
   guide: { title: 'FIELD GUIDE' },
   journalTitle: 'GARDEN JOURNAL',
-  journalLive: 'LIVE ●',
+  journalLive: 'LIVE',
   journalEmpty: 'NOTHING HAS BLOOMED YET',
   stats: {
     generation: 'GENERATION',

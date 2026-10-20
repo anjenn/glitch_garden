@@ -24,6 +24,7 @@ export function WorldControls(props: WorldControlsProps) {
       <div className="mini-actions">
         <button
           type="button"
+          className="tool-btn"
           id="palette"
           onClick={onPalette}
           disabled={pending}
@@ -32,11 +33,11 @@ export function WorldControls(props: WorldControlsProps) {
           {COPY.controls.palette} · {paletteName}
         </button>
         {canReset && (
-          <button type="button" id="newWorld" onClick={onReset}>
+          <button type="button" className="tool-btn" id="newWorld" onClick={onReset}>
             {COPY.controls.newWorld}
           </button>
         )}
-        <button type="button" id="helpBottom" onClick={onHelp}>
+        <button type="button" className="tool-btn" id="helpBottom" onClick={onHelp}>
           {COPY.controls.help}
         </button>
       </div>

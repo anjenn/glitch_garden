@@ -10,6 +10,7 @@ import { StatusToast } from '../components/StatusToast.tsx';
 import { WorldControls } from '../components/WorldControls.tsx';
 import { WorldStats } from '../components/WorldStats.tsx';
 import { getPalette } from '../game/palettes.ts';
+import { MAX_ENTITIES, MUTATION_RULES_VERSION } from '../game/types.ts';
 import type { WorldRepository } from '../store/repository.ts';
 import { useWorld } from '../store/useWorld.ts';
 import { COPY } from './copy.ts';
@@ -116,7 +117,13 @@ export function App({ repository, fallbackNotice }: AppProps) {
       <HelpPopover open={helpOpen} mode={mode} onClose={closeHelp} />
       <StatusToast message={toast} />
       <footer className="bottom-credit" data-testid="footer-mode">
-        {footerLabel(mode, status === 'error')}
+        <span>{footerLabel(mode, status === 'error')}</span>
+        {world && (
+          <span>
+            <b>{world.entities.length}</b>/{MAX_ENTITIES} SPECIMENS · RULES v
+            {MUTATION_RULES_VERSION}
+          </span>
+        )}
       </footer>
     </main>
   );

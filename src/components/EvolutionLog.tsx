@@ -28,7 +28,7 @@ export function EvolutionLog({ events, world, now }: EvolutionLogProps) {
     <div className="glass-panel journal">
       <div className="panel-title">
         <span>✧ {COPY.journalTitle}</span>
-        <span>{COPY.journalLive}</span>
+        <span className="live">{COPY.journalLive}</span>
       </div>
       <ol className="entries" id="journal" aria-live="polite" aria-relevant="additions">
         {visible.length === 0 && <li className="entry-empty">{COPY.journalEmpty}</li>}
