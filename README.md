@@ -1,56 +1,113 @@
-# GLITCH.GARDEN — 8-bit Evolving Website
+# GLITCH.GARDEN — a little 8-bit world that blooms
 
-**A tiny pixel world that changes when someone interacts with it.**
+**A tiny pixel garden that changes when someone interacts with it.**
 
-This package includes a playable, dependency-free HTML prototype and a complete set of build specifications for an optional globally shared version.
+This repository contains the production app (Vite + React + strict TypeScript + Canvas 2D), the
+original dependency-free HTML mockup, and the full build specification in `docs/`.
 
-## Try the mockup
+## Run it
 
-1. Open [`mockup/index.html`](mockup/index.html) in a current browser.
-2. Click anywhere in the world, or press **MUTATE**, to alter its organisms.
-3. Move your pointer fast to produce temporary pixel distortion.
-4. Stop interacting for ~16 seconds to let the garden grow autonomously.
-5. Click **PALETTE** to cycle color modes. Click **NEW WORLD / RESET** to clear your locally saved world.
-6. Refresh the page: your changes persist with `localStorage`.
+```bash
+npm install
+npm run dev          # http://127.0.0.1:5173  (local demo mode)
+```
 
-**Important:** This mockup is **local-only**. Its visit counter counts visits in your browser, not worldwide users. The shared persistent garden described in the architecture docs is a planned production feature, not an implemented feature.
+1. Click anywhere in the floating garden, or press **MUTATE THE GARDEN**, to grow a flower, tree,
+   crystal, shroom, robot, portal, totem or slime. Click right next to a specimen and it may transform.
+2. Move your pointer fast to leave pixel stardust (visual only — never a mutation).
+3. Stop interacting for ~16 seconds and the garden grows on its own.
+4. **PALETTE** cycles four color modes (ANGEL / DUSK / MINT / CANDY) without moving anything.
+5. **NEW WORLD** asks for confirmation, then starts a fresh seed. **COPY SEED** copies the seed only.
+6. Reload: your garden persists in `localStorage` (with an in-memory fallback if storage is blocked).
+
+**Important:** by default the app runs in **LOCAL DEMO** mode, labeled as such in the header and
+footer. "Local visits" counts visits in your browser only. Nothing is shared or tracked.
+
+## Verify
+
+```bash
+npm run check        # prettier --check, tsc --noEmit, vitest (unit)
+npm run test:e2e     # Playwright: builds nothing; run `npm run build` first (preview server on :4173)
+```
+
+Unit tests cover the PRNG known-answer vectors, reducer determinism and replay, a 10,000-step
+invariant run (bounds, entity cap of 85, finite values, palette 0–3), the 21px hit test, sprite
+geometry (integer rectangles only), intent/state validation, storage migration and malformed-storage
+recovery. Playwright covers the smoke matrix in `docs/09_TESTING_ACCEPTANCE.md` (persistence across
+reload, click/keyboard/pointer-trail behavior, reset confirm/cancel, four viewports down to 360px
+with no horizontal overflow, reduced motion, nearest-neighbor canvas).
+
+## How it is built
+
+| Area | Where | Notes |
+| --- | --- | --- |
+| Pure engine | `src/game/` | No DOM/storage/network. `applyMutation(world, action, entropy, now)` is the only way the world changes. mulberry32 PRNG; ids are `e-<revision>`. |
+| Rendering | `src/game/renderer.ts`, `src/game/sprites.ts` | The 480×320 logical plane is projected onto the garden region of the illustrated scene; every sprite is integer-snapped rectangles (nearest-neighbor, no anti-aliasing). |
+| Input | `src/input/pointer.ts` | CSS px → integer logical coordinates; velocity for trails. |
+| Stores | `src/store/` | `LocalWorldRepository` (localStorage, schema v1, migration from the mockup's key) and `RemoteWorldRepository` (Supabase) share one `WorldRepository` contract. |
+| UI | `src/app/`, `src/components/` | Mockup's pastel art direction; all copy in `src/app/copy.ts`. |
+| Backend (Track B) | `supabase/` | SQL migration, `interact` and `growth` Edge Functions. See below. |
+
+## Shared world (Track B) — implemented, **not yet deployed or verified**
+
+The code for one authoritative shared world exists but has not been run against a live Supabase
+project in this repository, so the app does **not** claim global sharing anywhere unless you enable
+it yourself and it connects.
+
+What is in place:
+
+- `supabase/migrations/0001_world.sql`: `world_state`, `world_events`, `event_idempotency`,
+  `interaction_quota`; RLS with public **read** of state and events and **no** browser writes;
+  `commit_world_mutation` (atomic revision check + event insert + state update + idempotency) and
+  `consume_interaction_quota`, both `SECURITY DEFINER` with fixed `search_path` and `EXECUTE`
+  granted only to `service_role`.
+- `supabase/functions/interact`: verifies the anonymous JWT, rejects bodies over 1 KB and anything
+  outside the strict intent allowlist (no client entities, counters or palette values), applies
+  6 mutations/minute per anonymous session, computes the transition with the same reducer the
+  browser runs, retries up to 3 times on revision conflict, returns the stable error JSON from
+  `docs/04_DATA_CONTRACTS.md`.
+- `supabase/functions/growth`: scheduler-only idle growth, protected by `GROWTH_JOB_SECRET`,
+  idempotent per `(world, minute)` through a unique index.
+- `src/store/remoteWorldStore.ts`: anonymous sign-in, intent POST, snapshot refetch on every
+  committed revision, Realtime dedupe by `eventId`, refetch on reconnect; local idle growth is
+  disabled in this mode.
+
+To try it:
+
+```bash
+cp .env.example .env            # set VITE_APP_MODE=shared, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
+npm run sync:functions           # copies src/game into supabase/functions/_shared
+supabase db push                 # applies the migration
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=... GROWTH_JOB_SECRET=... WORLD_ENTROPY_SECRET=... WORLD_ID=00000000-0000-4000-8000-000000000001 SUPABASE_ANON_KEY=...
+supabase functions deploy interact growth
+# schedule: POST /functions/v1/growth once per minute with header x-growth-secret
+```
+
+If shared mode is requested but the backend cannot be reached, the app falls back to the local
+demo and says so. Release gate from `docs/09`: do not call shared mode done until two devices mutate
+the same server-owned world while direct browser writes are demonstrably rejected.
 
 ## Package contents
 
-| File | Purpose |
+| Path | Purpose |
 | --- | --- |
-| `mockup/index.html` | Working standalone 8-bit interactive demo (HTML/CSS/JS; no build/install) |
-| `mockup/preview-desktop.png` | Desktop mockup screenshot |
-| `mockup/preview-mobile.png` | Mobile mockup screenshot |
+| `src/` | Production app (see table above) |
+| `e2e/` | Playwright acceptance tests |
+| `supabase/` | Track B migration and Edge Functions |
+| `mockup/index.html` | Original standalone prototype (kept as the visual reference) |
 | [`AGENTS.md`](AGENTS.md) | Ground rules for coding agents |
-| [`FILE_TREE.md`](FILE_TREE.md) | Target production repository layout |
-| [`docs/01_PRODUCT_REQUIREMENTS.md`](docs/01_PRODUCT_REQUIREMENTS.md) | Vision, MVP, personas, requirements |
-| [`docs/02_VISUAL_UX_SYSTEM.md`](docs/02_VISUAL_UX_SYSTEM.md) | Pixel art UI, palette, states, responsiveness |
-| [`docs/03_SYSTEM_ARCHITECTURE.md`](docs/03_SYSTEM_ARCHITECTURE.md) | Components, data flow, offline-to-online migration |
-| [`docs/04_DATA_CONTRACTS.md`](docs/04_DATA_CONTRACTS.md) | Models, event and API contracts |
-| [`docs/05_MUTATION_ENGINE.md`](docs/05_MUTATION_ENGINE.md) | Deterministic mutation and rendering rules |
-| [`docs/06_REALTIME_SECURITY.md`](docs/06_REALTIME_SECURITY.md) | Multiuser sync, access control, spam prevention |
-| [`docs/07_FRONTEND_IMPLEMENTATION.md`](docs/07_FRONTEND_IMPLEMENTATION.md) | React/Canvas engineering guidelines |
-| [`docs/08_ROADMAP_TASKS.md`](docs/08_ROADMAP_TASKS.md) | Milestones and actionable implementation tickets |
-| [`docs/09_TESTING_ACCEPTANCE.md`](docs/09_TESTING_ACCEPTANCE.md) | Test strategy and release gates |
-| [`docs/10_DEPLOYMENT_OPERATIONS.md`](docs/10_DEPLOYMENT_OPERATIONS.md) | Environments, release and monitoring |
-| [`docs/11_DECISIONS_RISKS.md`](docs/11_DECISIONS_RISKS.md) | Architecture decisions and risk register |
-| [`docs/12_AGENT_WORKFLOWS.md`](docs/12_AGENT_WORKFLOWS.md) | Agent roles, task templates and prompts |
+| [`FILE_TREE.md`](FILE_TREE.md) | Repository layout |
+| `docs/01…12` | Product, visual, architecture, contracts, engine, security, frontend, roadmap, testing, operations, decisions, agent workflow |
 
-## Two build options
+## Definition of done (status)
 
-**Track A — simplest playable website:** Publish `mockup/index.html` as a static site. No accounts, no database, no infrastructure work. Visitors get their own evolving local garden.
-
-**Track B — truly shared garden:** Rebuild the prototype in React + TypeScript, keep Canvas 2D pixel rendering, then add Supabase Postgres + Realtime + a server-authoritative mutation endpoint. All visitors see the same canonical world. Build only after Track A is validated.
-
-## Definition of done
-
-- Click/touch/keyboard interaction changes the world.
-- Changes survive a refresh.
-- Pixel rendering remains crisp at every viewport size.
-- “Local only” is honestly labeled until multiplayer exists.
-- Future shared mutations are validated server-side, not trusted from the browser.
+- [x] Click/touch/keyboard interaction changes the world.
+- [x] Changes survive a refresh.
+- [x] Pixel sprites remain crisp at every viewport size.
+- [x] "Local demo" is honestly labeled until multiplayer exists.
+- [x] Shared mutations are validated server-side, not trusted from the browser (code complete; deployment unverified).
 
 ## License / assets
 
-The demonstration uses procedural art only: no externally hosted images, proprietary fonts, or third-party scripts. Choose your own license before publishing the repository.
+`mockup/assets/angel-forest.png` (also served from `public/assets/`) is the illustrated backdrop.
+No external fonts, scripts or trackers. Choose a license before publishing.
