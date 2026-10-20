@@ -1,82 +1,88 @@
-# Proposed Production File Tree
+# Repository File Tree
 
-The downloaded demo intentionally has only `mockup/index.html`. **The following is a target structure**, not a claim that these source files already exist.
+Actual layout as of 2026-10-20. `mockup/` is the original standalone prototype and the visual reference.
 
 ```text
 glitch-garden/
 ├── README.md
 ├── AGENTS.md
+├── FILE_TREE.md
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
+├── vitest.config.ts
+├── playwright.config.ts
 ├── .env.example
 ├── .gitignore
+├── index.html
 ├── public/
-│   └── favicon.svg
+│   ├── favicon.svg
+│   └── assets/angel-forest.png      # illustrated backdrop (copied from mockup/assets)
+├── scripts/
+│   └── sync-shared.mjs              # copies src/game → supabase/functions/_shared/game
 ├── src/
 │   ├── main.tsx
-│   ├── app/App.tsx
-│   ├── app/App.css
+│   ├── vite-env.d.ts
+│   ├── app/
+│   │   ├── App.tsx                  # layout, mode label, toasts, help, wiring
+│   │   ├── App.css                  # pastel art direction ported from the mockup
+│   │   └── copy.ts                  # every UI string
 │   ├── components/
-│   │   ├── PixelWorld.tsx          # canvas + input / resize only
-│   │   ├── WorldStats.tsx          # chaos / growth / mutations
-│   │   ├── EvolutionLog.tsx        # recent server events
-│   │   ├── WorldControls.tsx       # mutate / palette / reset (dev only)
+│   │   ├── PixelWorld.tsx           # overlay canvas: frame loop, input mapping, particles
+│   │   ├── WorldStats.tsx           # generation / mutations / specimens / meters
+│   │   ├── EvolutionLog.tsx         # last 7 events
+│   │   ├── WorldControls.tsx        # mutate / palette / new world / help
+│   │   ├── HelpPopover.tsx
 │   │   └── StatusToast.tsx
-│   ├── game/
-│   │   ├── types.ts                # pure domain interfaces
-│   │   ├── palettes.ts             # 4 restricted color palettes
-│   │   ├── initialWorld.ts         # new world from seed
-│   │   ├── prng.ts                 # explicit deterministic PRNG
-│   │   ├── mutations.ts            # pure world transition reducer
-│   │   ├── sprites.ts              # pure canvas pixel primitives
-│   │   ├── renderer.ts             # 480x320 draw order
-│   │   └── hitTest.ts              # nearest entity selection
+│   ├── game/                        # pure: no DOM, storage or network
+│   │   ├── types.ts                 # domain types + constants (480×320, cap 85, 21px, 0.35)
+│   │   ├── prng.ts                  # mulberry32 + mix32/hashString, stream derivation
+│   │   ├── palettes.ts              # 4 palettes (sprite/sparkle/particle colors)
+│   │   ├── initialWorld.ts          # seeded starter garden
+│   │   ├── mutations.ts             # applyMutation reducer
+│   │   ├── hitTest.ts               # nearest entity within radius
+│   │   ├── validate.ts              # type guards + strict intent parser
+│   │   ├── sprites.ts               # 8 archetype pixel maps → integer rects
+│   │   └── renderer.ts              # overlay draw order + particle helpers
 │   ├── input/
-│   │   └── pointer.ts              # coordinate mapping, velocity
+│   │   └── pointer.ts               # CSS px → logical coords, velocity
 │   ├── store/
-│   │   ├── useWorld.ts             # state subscription hook
-│   │   ├── localWorldStore.ts      # localStorage adapter
-│   │   └── remoteWorldStore.ts     # optional production adapter
-│   ├── services/
-│   │   ├── worldApi.ts             # HTTP contract
-│   │   └── realtime.ts             # Realtime subscription lifecycle
-│   ├── styles/
-│   │   ├── tokens.css
-│   │   ├── pixel-ui.css
-│   │   └── responsive.css
+│   │   ├── repository.ts            # WorldRepository contract + RepositoryError
+│   │   ├── localWorldStore.ts       # localStorage adapter, migration, memory fallback
+│   │   ├── remoteWorldStore.ts      # Supabase adapter (intent POST + Realtime)
+│   │   ├── createRepository.ts      # env switch with honest local fallback
+│   │   └── useWorld.ts              # React hook, idle growth timer
 │   └── tests/
+│       ├── prng.test.ts
+│       ├── geometry.test.ts
 │       ├── mutation.test.ts
+│       ├── validate.test.ts
 │       ├── serialization.test.ts
-│       └── geometry.test.ts
+│       ├── sprites.test.ts
+│       └── sharedSync.test.ts       # _shared/game must equal src/game
 ├── e2e/
 │   ├── local-persistence.spec.ts
 │   ├── input.spec.ts
 │   └── responsive.spec.ts
-├── supabase/                    # Only needed in Track B
+├── supabase/                        # Track B (code complete, not deployed)
 │   ├── config.toml
-│   ├── migrations/
-│   │   └── 0001_world.sql
+│   ├── migrations/0001_world.sql
 │   └── functions/
-│       └── interact/index.ts   # canonical server mutation endpoint
-└── docs/
-    ├── 01_PRODUCT_REQUIREMENTS.md
-    ├── 02_VISUAL_UX_SYSTEM.md
-    ├── 03_SYSTEM_ARCHITECTURE.md
-    ├── 04_DATA_CONTRACTS.md
-    ├── 05_MUTATION_ENGINE.md
-    ├── 06_REALTIME_SECURITY.md
-    ├── 07_FRONTEND_IMPLEMENTATION.md
-    ├── 08_ROADMAP_TASKS.md
-    ├── 09_TESTING_ACCEPTANCE.md
-    ├── 10_DEPLOYMENT_OPERATIONS.md
-    ├── 11_DECISIONS_RISKS.md
-    └── 12_AGENT_WORKFLOWS.md
+│       ├── _shared/server.ts        # Deno helpers: auth, commit RPC, errors
+│       ├── _shared/game/            # synced copy of src/game
+│       ├── interact/index.ts        # canonical mutation endpoint
+│       └── growth/index.ts          # scheduler-only idle growth
+├── mockup/
+│   ├── index.html
+│   ├── assets/angel-forest.png
+│   └── preview-*.png
+└── docs/01…12
 ```
 
 ## Why this separation?
 
-- `game/` knows nothing about React, Supabase, or browser storage. It can be unit-tested and reused server-side.
-- `renderer.ts` reads immutable world snapshots and draws sprites, rather than mutating business state.
-- `store/` makes **local** and **shared** deployments selectable without redesigning UI components.
-- `supabase/` is opt-in, keeping the weekend version truly small.
+- `game/` knows nothing about React, Supabase, or browser storage. It is unit-tested and the same
+  files run inside the Edge Functions.
+- `renderer.ts` reads immutable world snapshots and draws sprites; it never mutates business state.
+- `store/` makes **local** and **shared** deployments selectable without touching UI components.
+- `supabase/` is opt-in, keeping the standalone version truly small.

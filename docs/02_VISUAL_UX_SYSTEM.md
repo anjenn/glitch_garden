@@ -1,6 +1,8 @@
 # 02 — 8-Bit Visual & UX System
 
 ## Art direction
+> **Superseded 2026-10-20 (ADR-11):** the shipped app keeps the mockup's pastel angel-forest look. The color tokens and the “no pastel/glass” rules below describe the earlier dark concept and no longer apply to the UI chrome. Display rules (480×320 plane, nearest-neighbor sprites, integer rectangles, 2–4 px blocks, reduced-motion, accessibility) still apply.
+
 **Old handheld console meets experimental internet artwork.** Sharp, playful, mysterious, dark background with cheerful alien flora. Use chunky geometry, stepped shadows, and a small fixed palette. “8-bit” describes the **retro aesthetic**, not an actual restriction to old hardware or exactly 256 simultaneous colors.
 
 ## Exact reference

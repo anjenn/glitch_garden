@@ -13,6 +13,7 @@
 | ADR-08 | Only 8 allowlisted sprite archetypes | Art consistency, abuse-resistant | Lower expressive range |
 | ADR-09 | Pointer trails local-only | Prevents high-frequency network writes | Other users do not see your cursor |
 | ADR-10 | No visitor-generated text | Zero moderation for user text | Less explicit collaboration |
+| ADR-11 | Keep the mockup's pastel "angel forest" art direction (2026-10-20) | Product owner preferred the mockup look over the dark tokens in doc 02; the illustrated scene is static CSS artwork while specimens stay nearest-neighbor pixel sprites on the 480×320 plane | Doc 02's color tokens are superseded; glass panels and gradients are allowed in the chrome, never in sprites |
 
 ## Risk register
 | Risk | Severity | Trigger / mitigation |
