@@ -1,0 +1,5 @@
+# Normalize line endings so the repo is identical on Windows, macOS, Linux and Netlify.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary

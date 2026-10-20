@@ -40,6 +40,22 @@ recovery. Playwright covers the smoke matrix in `docs/09_TESTING_ACCEPTANCE.md` 
 reload, click/keyboard/pointer-trail behavior, reset confirm/cancel, four viewports down to 360px
 with no horizontal overflow, reduced motion, nearest-neighbor canvas).
 
+## Deploy to Netlify
+
+The repo is a static Vite site; `netlify.toml` already sets the build command (`npm run build`),
+the publish directory (`dist`), Node 22, an SPA redirect, immutable caching for hashed assets and
+security headers (CSP allows only same-origin plus `*.supabase.co` for the optional shared mode).
+
+1. Push the repository to GitHub/GitLab and **Add new site → Import an existing project** in Netlify,
+   or run `npx netlify-cli deploy --build --prod` from this folder.
+2. Nothing else is required for the local demo. Builds run `tsc --noEmit` first, so a type error
+   fails the deploy instead of shipping.
+3. For the shared world, set these in **Site settings → Environment variables** (all are public,
+   bundle-safe values): `VITE_APP_MODE=shared`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`,
+   optionally `VITE_WORLD_ID`. Never add service-role keys or `GROWTH_JOB_SECRET` to Netlify;
+   those belong to Supabase Edge Function secrets.
+4. Deploy previews work out of the box; every preview is its own local demo.
+
 ## How it is built
 
 | Area | Where | Notes |
