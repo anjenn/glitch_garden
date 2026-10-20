@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, type KeyboardEvent, type PointerEvent } from 'react';
+import { renderOverlay } from '../game/renderer.ts';
 import {
   emitParticles,
-  projectionFor,
-  renderOverlay,
+  gardenViewport,
+  insideViewport,
   stepParticles,
+  type Burst,
   type Particle,
   type Viewport,
-} from '../game/renderer.ts';
+} from '../game/space/index.ts';
 import { WORLD_HEIGHT, WORLD_WIDTH, type Point, type WorldState } from '../game/types.ts';
 import { toLogicalPoint, VelocityTracker } from '../input/pointer.ts';
 
@@ -27,23 +29,6 @@ export interface PixelWorldProps {
 const FRAME_MS = 34; // ~30 FPS
 const REDUCED_FRAME_MS = 250;
 
-/** The garden region of the viewport, mirroring the illustrated scene's focal area. */
-export function gardenViewport(width: number, height: number): Viewport {
-  if (width <= 700) {
-    return { left: width * 0.11, top: height * 0.31, width: width * 0.77, height: height * 0.44 };
-  }
-  return { left: width * 0.31, top: height * 0.23, width: width * 0.46, height: height * 0.56 };
-}
-
-function insideViewport(x: number, y: number, viewport: Viewport): boolean {
-  return (
-    x >= viewport.left &&
-    x <= viewport.left + viewport.width &&
-    y >= viewport.top &&
-    y <= viewport.top + viewport.height
-  );
-}
-
 export function PixelWorld(props: PixelWorldProps) {
   const { world, reducedMotion, onInteract, onOutsideClick, onPointerActivity, burst, ariaLabel } =
     props;
@@ -51,7 +36,7 @@ export function PixelWorld(props: PixelWorldProps) {
   const worldRef = useRef(world);
   const particles = useRef<Particle[]>([]);
   const cursor = useRef<Point | null>(null);
-  const burstRef = useRef<{ point: Point; startedAt: number } | null>(null);
+  const burstRef = useRef<Burst | null>(null);
   const velocity = useRef(new VelocityTracker());
   const lastTrail = useRef(0);
   const size = useRef({ width: 0, height: 0, dpr: 1 });
@@ -211,5 +196,3 @@ export function PixelWorld(props: PixelWorldProps) {
     />
   );
 }
-
-export { projectionFor };
