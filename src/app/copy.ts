@@ -12,6 +12,24 @@ export const COPY = {
   copySeed: 'COPY SEED',
   canvasLabel: 'Interactive angel forest. Click, tap, or press Enter to grow a creature or plant.',
   dnaTitle: 'WORLD DNA',
+  howto: {
+    title: 'HOW TO PLAY',
+    badge: '3 STEPS',
+    steps: [
+      {
+        icon: '✦',
+        title: 'CLICK',
+        body: 'Plant something where you click, or transform a neighbour.',
+      },
+      {
+        icon: '→',
+        title: 'MOVE',
+        body: 'Fast pointer moves leave stardust. It never changes the world.',
+      },
+      { icon: '◷', title: 'IDLE', body: 'Stop for ~16 seconds and the garden grows on its own.' },
+    ],
+  },
+  guide: { title: 'FIELD GUIDE' },
   journalTitle: 'GARDEN JOURNAL',
   journalLive: 'LIVE ●',
   journalEmpty: 'NOTHING HAS BLOOMED YET',

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { EvolutionLog } from '../components/EvolutionLog.tsx';
+import { FieldGuide } from '../components/FieldGuide.tsx';
 import { HelpPopover } from '../components/HelpPopover.tsx';
+import { HowToPlay } from '../components/HowToPlay.tsx';
 import { PixelWorld } from '../components/PixelWorld.tsx';
 import { SceneDecor } from '../components/SceneDecor.tsx';
 import { SiteHeader } from '../components/SiteHeader.tsx';
@@ -87,6 +89,10 @@ export function App({ repository, fallbackNotice }: AppProps) {
         pending={pending}
         onPalette={actions.onPalette}
       />
+      <aside className="left-ui" id="leftUI" aria-label="Instructions and field guide">
+        <HowToPlay />
+        {world && <FieldGuide world={world} />}
+      </aside>
       <aside className="right-ui" id="rightUI" aria-label="Live world data">
         {world && snapshot && (
           <>
