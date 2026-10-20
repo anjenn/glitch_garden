@@ -23,10 +23,12 @@ test.describe('local persistence (SM-03, SM-06, SM-07, SM-08, SM-09)', () => {
   test('palette shift is logged and recolors without moving entities', async ({ page }) => {
     await page.goto('/');
     const before = await page.evaluate(() => localStorage.getItem('glitch-garden:v1'));
-    await page.click('#palette');
+    await page.locator('#paletteTop, #palette').locator('visible=true').first().click();
     await expect(page.locator('#mutations')).toHaveText('001');
     await expect(page.locator('#journal .entry').first()).toContainText('PALETTE');
-    await expect(page.locator('#palette')).toContainText('DUSK');
+    await expect(
+      page.locator('#paletteTop, #palette').locator('visible=true').first(),
+    ).toContainText('DUSK');
     const after = await page.evaluate(() => localStorage.getItem('glitch-garden:v1'));
     const a = JSON.parse(before ?? '{}') as { world: { entities: unknown; palette: number } };
     const b = JSON.parse(after ?? '{}') as { world: { entities: unknown; palette: number } };

@@ -21,6 +21,7 @@ import {
   type WorldState,
 } from '../game/types.ts';
 import { toLogicalPoint, VelocityTracker } from '../input/pointer.ts';
+import { useOverlayCanvas } from './useOverlayCanvas.ts';
 
 export type InteractSource = 'click' | 'key';
 
@@ -52,7 +53,7 @@ export function PixelWorld(props: PixelWorldProps) {
   const burstRef = useRef<Burst | null>(null);
   const velocity = useRef(new VelocityTracker());
   const lastTrail = useRef(0);
-  const size = useRef({ width: 0, height: 0, dpr: 1 });
+  const size = useOverlayCanvas(canvasRef);
 
   worldRef.current = world;
 
@@ -86,35 +87,6 @@ export function PixelWorld(props: PixelWorldProps) {
     burstRef.current = { point: burst.point, startedAt: performance.now() };
     if (!reducedMotion) emitParticles(particles.current, burst.point, 22);
   }, [burst, reducedMotion]);
-
-  // Resize: the overlay covers its parent; the context must be re-flagged after every resize.
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const parent = canvas?.parentElement;
-    if (!canvas || !parent) return;
-    const resize = () => {
-      const box = parent.getBoundingClientRect();
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      size.current = { width: box.width, height: box.height, dpr };
-      canvas.width = Math.round(box.width * dpr);
-      canvas.height = Math.round(box.height * dpr);
-      canvas.style.width = `${box.width}px`;
-      canvas.style.height = `${box.height}px`;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.imageSmoothingEnabled = false;
-      }
-    };
-    resize();
-    const observer = new ResizeObserver(resize);
-    observer.observe(parent);
-    window.addEventListener('resize', resize);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
 
   // Frame loop, throttled to ~30 FPS and paused while the tab is hidden.
   useEffect(() => {

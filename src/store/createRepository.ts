@@ -1,3 +1,4 @@
+import { COPY } from '../app/copy.ts';
 import type { RuntimeMode } from '../game/types.ts';
 import { LocalWorldRepository, safeLocalStorage } from './localWorldStore.ts';
 import type { WorldRepository } from './repository.ts';
@@ -39,7 +40,7 @@ export async function createRepository(): Promise<RepositoryBootstrap> {
     return {
       repository: createLocalRepository(),
       requestedMode: mode,
-      fallbackNotice: 'SHARED WORLD UNAVAILABLE · SHOWING LOCAL DEMO',
+      fallbackNotice: COPY.sharedUnavailable,
     };
   }
 }

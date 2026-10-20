@@ -14,6 +14,9 @@ glitch-garden/
 ├── playwright.config.ts
 ├── .env.example
 ├── .gitignore
+├── .gitattributes               # LF everywhere
+├── .nvmrc                       # Node 22 (Netlify + local)
+├── netlify.toml                 # build, SPA redirect, cache + security headers
 ├── index.html
 ├── public/
 │   ├── favicon.svg
@@ -24,14 +27,20 @@ glitch-garden/
 │   ├── main.tsx
 │   ├── vite-env.d.ts
 │   ├── app/
-│   │   ├── App.tsx                  # layout, mode label, toasts, help, wiring
+│   │   ├── App.tsx                  # layout only
 │   │   ├── App.css                  # pastel art direction ported from the mockup
-│   │   └── copy.ts                  # every UI string
+│   │   ├── copy.ts                  # every UI string
+│   │   ├── feedback.ts              # pure outcome → toast/label helpers
+│   │   ├── useGardenActions.ts      # commit actions, helper line, bursts
+│   │   └── hooks/                   # useReducedMotion, useClock, useToast
 │   ├── components/
 │   │   ├── PixelWorld.tsx           # overlay canvas: frame loop, input mapping, particles
+│   │   ├── useOverlayCanvas.ts      # parent-sized canvas + DPR + nearest-neighbor flag
+│   │   ├── SiteHeader.tsx           # brand, mode chip, pixel-tab nav, palette + seed tools
+│   │   ├── SceneDecor.tsx           # fog, sparkles, leaves
 │   │   ├── WorldStats.tsx           # generation / mutations / specimens / meters
 │   │   ├── EvolutionLog.tsx         # last 7 events
-│   │   ├── WorldControls.tsx        # mutate / palette / new world / help
+│   │   ├── WorldControls.tsx        # mutate / palette (phones) / new world / help
 │   │   ├── HelpPopover.tsx
 │   │   └── StatusToast.tsx
 │   ├── game/                        # pure: no DOM, storage or network
@@ -42,8 +51,9 @@ glitch-garden/
 │   │   ├── mutations.ts             # applyMutation reducer
 │   │   ├── hitTest.ts               # nearest entity within radius
 │   │   ├── validate.ts              # type guards + strict intent parser
-│   │   ├── sprites.ts               # 8 archetype pixel maps → integer rects
-│   │   └── renderer.ts              # overlay draw order + particle helpers
+│   │   ├── characters/              # maps, colors, draw (PixelSink)
+│   │   ├── space/                   # viewport, terrain, atmosphere, particles, animation, colors
+│   │   └── renderer.ts              # compositor: space → characters → effects
 │   ├── input/
 │   │   └── pointer.ts               # CSS px → logical coords, velocity
 │   ├── store/
@@ -58,7 +68,10 @@ glitch-garden/
 │       ├── mutation.test.ts
 │       ├── validate.test.ts
 │       ├── serialization.test.ts
-│       ├── sprites.test.ts
+│       ├── characters.test.ts
+│       ├── space.test.ts
+│       ├── terrain.test.ts
+│       ├── animation.test.ts
 │       └── sharedSync.test.ts       # _shared/game must equal src/game
 ├── e2e/
 │   ├── local-persistence.spec.ts
