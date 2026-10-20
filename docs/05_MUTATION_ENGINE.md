@@ -39,6 +39,17 @@ Initial weighted choice can be uniform across 8 archetypes. Optional later tunin
 - `idle_growth`: may be emitted only by authorized scheduler; cannot be submitted by anonymous visitors.
 - Pointer velocity creates **client-only transient effects** and does not increment mutation count or persist.
 
+## Rules v2 — terrain-aware placement (implemented 2026-10-21)
+`MUTATION_RULES_VERSION = 2`. The space is modelled in `src/game/space/terrain.ts` (pure, shared with the server):
+- **Floor**: a plaza band between `floorTop(x)` (~y 232) and `floorBottom(x)` (~y 300), clamped to the island (x 24–456).
+- **Pool**: x 196–292, y 248–300. Only `slime` and `flower` may live there.
+- **Sky**: more than 48 px above the floor. Only `portal` and `crystal` may float there.
+- Click/random drop: the nearest-entity transform check still uses the raw clamped point (so a floating specimen can be clicked in the air). Otherwise: sky point → with probability **0.6** a sky type stays at the point, else the drop falls to `floorTop(x)`; wall/plaza points settle to the floor band; pool points spawn a water type.
+- Transform picks the new type from the allowlist of the specimen's current zone.
+- `idle_growth` sprouts on the plaza only (a `flower` if it lands in the pool).
+- The starter garden stands on the floor; only slimes may start in the pool.
+Everything visual that follows from a placement (falling, landing dust, ripples, bobbing, perspective) is client-only (`src/game/space/animation.ts`, `src/game/renderer.ts`) and never persisted.
+
 ## Idle growth in multiplayer
 A single scheduler issues at most **one world-wide growth event per minute** while enabled; it must be idempotent per `(worldId, minuteBucket)`. Never run canonical growth independently from every viewer's timer.
 

@@ -14,6 +14,9 @@ npm run dev          # http://127.0.0.1:5173  (local demo mode)
 
 1. Click anywhere in the floating garden, or press **MUTATE THE GARDEN**, to grow a flower, tree,
    crystal, shroom, robot, portal, totem or slime. Click right next to a specimen and it may transform.
+   Specimens respect the scene: a click on a wall or in the air drops one onto the plaza floor
+   (with landing dust), sky clicks sometimes leave a floating crystal or portal, and the waterfall
+   pool only accepts slimes and lotus flowers.
 2. Move your pointer fast to leave pixel stardust (visual only — never a mutation).
 3. Stop interacting for ~16 seconds and the garden grows on its own.
 4. **PALETTE** cycles four color modes (ANGEL / DUSK / MINT / CANDY) without moving anything.
@@ -41,7 +44,7 @@ with no horizontal overflow, reduced motion, nearest-neighbor canvas).
 
 | Area | Where | Notes |
 | --- | --- | --- |
-| Pure engine | `src/game/` | No DOM/storage/network. `applyMutation(world, action, entropy, now)` is the only way the world changes. mulberry32 PRNG; ids are `e-<revision>`. |
+| Pure engine | `src/game/` | No DOM/storage/network. `applyMutation(world, action, entropy, now)` is the only way the world changes. mulberry32 PRNG; ids are `e-<revision>`. `characters/` holds the 8 pixel archetypes, `space/` the terrain model (floor, pool, sky), viewport projection, atmosphere effects and client-only animation. |
 | Rendering | `src/game/renderer.ts`, `src/game/sprites.ts` | The 480×320 logical plane is projected onto the garden region of the illustrated scene; every sprite is integer-snapped rectangles (nearest-neighbor, no anti-aliasing). |
 | Input | `src/input/pointer.ts` | CSS px → integer logical coordinates; velocity for trails. |
 | Stores | `src/store/` | `LocalWorldRepository` (localStorage, schema v1, migration from the mockup's key) and `RemoteWorldRepository` (Supabase) share one `WorldRepository` contract. |
