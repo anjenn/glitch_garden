@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e8e1ff">
+  <meta name="description" content="GLITCH.GARDEN — a tiny angelic pixel forest that evolves with every visit.">
+  <title>GLITCH.GARDEN — little world, endless wonder</title>
+  <style>
+    :root{--ink:#575482;--ink-deep:#45406d;--lilac:#9588c0;--pink:#e78eae;--rose:#edb3c5;--petal:#ffe3ec;--cream:#fffaf5;--mist:#f1ebff;--mint:#a8dbc0;--line:#e7bdd5;--shadow:#b6a4d1;--sky:#e6e9ff;--pixel:2px}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;}body{background:#e8e7ff;color:var(--ink);font-family:"Courier New",Courier,monospace;-webkit-font-smoothing:none}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible,canvas:focus-visible{outline:3px solid #e78eae;outline-offset:3px}button:disabled{cursor:not-allowed}
+    .app{position:relative;isolation:isolate;min-height:800px;height:100dvh;max-height:1100px;overflow:hidden;background:linear-gradient(180deg,#b3b9ec 0%,#d3d4f7 17%,#e9ddfa 48%,#fee7ec 75%,#fff5ee 100%)}
+    .app:before{content:"";position:absolute;inset:0;z-index:0;opacity:.62;pointer-events:none;background:radial-gradient(ellipse 34% 18% at 1% 20%,#fff9f2 0 60%,transparent 70%),radial-gradient(ellipse 32% 21% at 99% 43%,#fff9f7 0 54%,transparent 70%),radial-gradient(ellipse 44% 18% at 50% 101%,#fffefa 0 65%,transparent 76%),radial-gradient(ellipse 24% 17% at 27% 68%,#fff4f8 0 55%,transparent 72%)}
+    .app:after{content:"";position:absolute;z-index:1;inset:0;pointer-events:none;opacity:.40;background-image:linear-gradient(90deg,#ffffff55 1px,transparent 1px),linear-gradient(#ffffff4c 1px,transparent 1px);background-size:30px 30px;mask-image:linear-gradient(transparent,black 60%,transparent)}
+    .scene{position:absolute;z-index:1;left:50%;top:5%;width:min(70vw,1060px);height:min(96%,850px);transform:translateX(-45%);background:url('assets/angel-forest.png') center center / contain no-repeat;pointer-events:none;filter:saturate(1.02) drop-shadow(0 10px 19px #a28ad12a)}
+    .scene:after{content:"";position:absolute;left:2%;right:2%;bottom:0;height:40%;pointer-events:none;background:linear-gradient(0deg,#ffeef271,transparent)}
+    #effects{position:absolute;inset:0;width:100%;height:100%;z-index:2;cursor:crosshair;touch-action:manipulation}
+    .fogbank{position:absolute;z-index:3;bottom:-80px;left:-6%;right:-6%;height:225px;pointer-events:none;background:radial-gradient(ellipse 15% 27% at 5% 62%,#fff9f3 0 88%,transparent 92%),radial-gradient(ellipse 19% 30% at 26% 80%,#fff9f6 0 85%,transparent 92%),radial-gradient(ellipse 17% 30% at 50% 78%,#fff8f8 0 85%,transparent 92%),radial-gradient(ellipse 18% 28% at 72% 87%,#fff9f6 0 85%,transparent 92%),radial-gradient(ellipse 15% 33% at 94% 75%,#fff9f2 0 85%,transparent 92%),linear-gradient(0deg,#fff9f7 0%,#fff9f7aa 40%,transparent 80%)}
+    .pixelspark{position:absolute;z-index:3;color:#fffafa;pointer-events:none;text-shadow:2px 2px #ffdabd;font-size:21px;animation:twinkle 3s steps(4) infinite alternate}.s1{left:25%;top:21%}.s2{left:70%;top:12%;animation-delay:-2s}.s3{left:85%;top:59%;animation-delay:-1s}.s4{left:13%;top:72%;animation-delay:-1.5s}.s5{left:49%;top:12%;animation-delay:-.7s}
+    .header{position:relative;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:16px;margin:22px 35px 0;padding:11px 17px 11px 13px;border:2px solid #f4d5e2;background:#fffaf6e8;box-shadow:0 5px 0 #b9a4c54a,0 0 36px #ffffff55;min-height:59px;clip-path:polygon(8px 0,calc(100% - 8px) 0,calc(100% - 8px) 5px,100% 5px,100% calc(100% - 5px),calc(100% - 8px) calc(100% - 5px),calc(100% - 8px) 100%,8px 100%,8px calc(100% - 5px),0 calc(100% - 5px),0 5px,8px 5px)}
+    .brand{display:flex;align-items:center;gap:12px;font-size:23px;font-weight:900;letter-spacing:-1px;white-space:nowrap;color:#64608c;text-shadow:2px 2px #ffd2e2}
+    .logo{display:grid;place-items:center;width:36px;height:36px;background:#fbe4ee;border:2px solid #e7b0cb;box-shadow:inset 3px 3px #fffafa,3px 3px #ccb9dd;color:#83b5a6;font-size:26px}
+    .brand-dot{color:#e8a4b8}.mainnav{display:flex;gap:5px;align-items:center;justify-content:center}.mainnav button{border:1px solid transparent;color:#797396;font-weight:900;background:transparent;font-size:11px;letter-spacing:.055em;padding:13px 16px;white-space:nowrap}.mainnav button.active,.mainnav button:hover{border:2px solid #edbfce;border-radius:22px;background:#ffe8ee;color:#72648c;padding:12px 15px}.seed-btn{background:#fff2e9;border:2px solid #e9b6c8;color:#746687;font-size:11px;font-weight:900;letter-spacing:.015em;padding:11px 15px;white-space:nowrap;box-shadow:3px 3px 0 #d9bfdc}.seed-btn:hover{background:#ffe7ee}.seed-btn span{color:#80ad97}
+    .intro{position:absolute;z-index:5;top:19%;left:clamp(28px,5vw,85px);width:min(33%,390px);pointer-events:none}.topline{color:#e58ba9;font-size:11px;letter-spacing:.19em;font-weight:900;margin-bottom:20px;text-shadow:1px 1px #fff}.intro h1{font-size:clamp(35px,4vw,60px);line-height:1.13;font-weight:900;letter-spacing:-.07em;color:#6c6496;text-shadow:3px 4px 0 #fff7fa;margin:0 0 22px;text-transform:uppercase}.intro h1 em{font-style:normal;color:#df789e}.intro p{max-width:330px;font-size:12px;line-height:1.9;letter-spacing:.01em;font-weight:600;color:#676089;text-shadow:0 1px #fffafa;margin:0}.introspark{color:#e1a1bb;letter-spacing:.3em;margin-top:24px;font-size:17px}
+    .floating-note{position:absolute;z-index:5;left:clamp(28px,5vw,85px);bottom:11%;display:flex;align-items:center;gap:10px;max-width:290px;padding:10px 14px;background:#fffaf5e8;border:2px solid #ecc6d6;box-shadow:4px 5px 0 #d7bfdd8c;pointer-events:none}.note-mascot{font-size:31px;background:#faeaf3;border:2px solid #f4d2df;width:47px;height:47px;display:grid;place-items:center}.floating-note strong{font-size:11px;color:#72618c}.floating-note small{display:block;font-size:9px;line-height:1.5;margin-top:4px;color:#ac8da8}
+    .right-ui{position:absolute;z-index:6;right:clamp(24px,4.2vw,70px);top:20%;width:252px;display:flex;flex-direction:column;gap:16px}
+    .glass-panel{background:#fffaf5eb;border:2px solid #efc6d7;box-shadow:5px 5px 0 #d1b4d480, inset 0 0 0 3px #fffdf5;backdrop-filter:blur(7px)}
+    .panel-title{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 15px 11px;border-bottom:2px solid #f2d6df;font-size:12px;color:#74648c;font-weight:bold}.panel-title span:last-child{font-size:10px;color:#a8bba2}.title-icon{color:#92bc9f}
+    .panel-inner{padding:8px 17px 17px}.stat-row{display:flex;align-items:center;justify-content:space-between;border-bottom:1px dashed #edcedc;padding:11px 0;color:#8880a3;font-size:10px;letter-spacing:.02em}.stat-row b{font-size:15px;color:#605684}.stat-row:last-of-type{border:0}
+    .meter-head{display:flex;justify-content:space-between;font-size:10px;margin:16px 0 7px;color:#8279a0}.meter-head strong{color:#dd8eaa}.meter-head.mint strong{color:#7db799}.meter{display:flex;gap:3px}.meter i{flex:1;height:12px;background:#f6e9ed;border:1px solid #eccbd7}.meter i.filled{background:#f1aac6;border-color:#e793b5;box-shadow:inset 1px 1px #ffdae7}.meter.mint i.filled{background:#9ed7b8;border-color:#88c9a7;box-shadow:inset 1px 1px #dcffeb}
+    .journal .panel-title{font-size:11px}.journal .entries{padding:11px 14px}.entry{display:flex;gap:9px;align-items:flex-start;margin:11px 0;font-size:10px;line-height:1.4;color:#84769c}.entry>span:first-child{color:#cf83a3;min-width:14px}.entry-text{flex:1}.entry-time{font-size:9px;color:#b2a6bc;white-space:nowrap}
+    .bottom-actions{position:absolute;z-index:7;left:50%;bottom:clamp(32px,6%,68px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:11px;white-space:nowrap}
+    .primary{font-family:inherit;font-weight:900;font-size:15px;letter-spacing:.065em;color:#756082;background:linear-gradient(180deg,#ffe1eb 0%,#f7b6cd 100%);border:3px solid #fff8f6;outline:2px solid #e79dbc;outline-offset:-5px;box-shadow:0 5px 0 #c88ca9,0 9px 15px #b87fa033;min-width:325px;min-height:69px;padding:17px 26px;clip-path:polygon(8px 0,calc(100% - 8px) 0,calc(100% - 8px) 5px,100% 5px,100% calc(100% - 5px),calc(100% - 8px) calc(100% - 5px),calc(100% - 8px) 100%,8px 100%,8px calc(100% - 5px),0 calc(100% - 5px),0 5px,8px 5px);transition:transform .12s,filter .12s}.primary:hover{filter:brightness(1.04);transform:translateY(-2px)}.primary:active{transform:translateY(4px);box-shadow:0 1px 0 #c88ca9}.primary i{color:#79b7a3;font-style:normal;font-size:21px;margin-right:10px}.action-note{font-size:10px;letter-spacing:.12em;color:#746994;background:#fff8f39c;padding:5px 13px}.mini-actions{display:flex;gap:8px}.mini-actions button{border:1px solid #efc3d6;background:#fff9f3dc;font-size:9px;color:#9c83a9;padding:7px 11px;box-shadow:2px 2px #d4bfd3}.mini-actions button:hover{background:#fff1f5}
+    .toast{position:absolute;z-index:20;bottom:26px;right:28px;border:2px solid #e9b6ca;background:#fffaf6;color:#766789;box-shadow:4px 4px 0 #bbabc8;padding:12px 16px;font-size:11px;font-weight:bold;opacity:0;transform:translateY(14px);transition:.22s;pointer-events:none;max-width:calc(100vw - 42px)}.toast.show{opacity:1;transform:translateY(0)}
+    .about-popover{display:none;position:absolute;z-index:12;top:100px;left:50%;transform:translateX(-50%);width:min(420px,calc(100vw - 36px));background:#fffbf7f2;border:3px solid #edc0d4;box-shadow:7px 7px 0 #b39bcc55;padding:23px 25px}.about-popover.open{display:block}.about-popover strong{color:#796489;font-size:15px}.about-popover p{color:#8a7b9b;font-size:12px;line-height:1.85;margin-bottom:0}.about-popover button{float:right;background:transparent;color:#a583a8;border:0;font-size:18px;margin-top:-5px}
+    .leafpix{position:absolute;z-index:4;bottom:3%;pointer-events:none;opacity:.85;font-size:36px;filter:drop-shadow(2px 3px #ab9dc570)}.leafpix.left{left:2%}.leafpix.right{right:2%}
+    .bottom-credit{position:absolute;z-index:7;bottom:9px;left:25px;color:#a496b2;font-size:9px;letter-spacing:.09em}
+    @keyframes twinkle{50%{opacity:.25;transform:scale(.75)}}
+    @media (min-width:1700px){.intro{left:7%}.right-ui{right:7%}.scene{transform:translateX(-47%)}}
+    @media (max-width:1090px) and (min-width:701px){.intro{top:18%;width:32%}.intro h1{font-size:37px}.intro p{font-size:10px}.right-ui{top:18%;right:20px;width:213px}.header{margin:16px 20px 0}.brand{font-size:19px}.mainnav button{font-size:10px;padding:10px}.scene{width:79vw;left:51%}.floating-note{bottom:17%}.panel-inner{padding:7px 12px 13px}}
+    @media(max-width:700px){.app{height:100dvh;min-height:780px;max-height:none}.header{margin:12px 12px 0;padding:8px 9px;min-height:51px}.brand{font-size:16px;letter-spacing:-1.2px;gap:7px}.logo{width:28px;height:28px;font-size:18px}.mainnav{display:none}.seed-btn{font-size:8px;padding:9px 7px;box-shadow:2px 2px #dac0d6}.scene{top:23%;left:50%;width:200%;height:58%;transform:translateX(-49%);background-size:contain;background-position:center}.intro{left:23px;top:11%;width:calc(100% - 44px)}.topline{font-size:9px;margin-bottom:9px}.intro h1{font-size:29px;line-height:1.01;margin-bottom:9px;max-width:320px}.intro p{font-size:10px;max-width:320px;line-height:1.55}.introspark{display:none}.right-ui{top:auto;bottom:135px;right:13px;width:155px;gap:8px}.panel-title{font-size:9px;padding:8px}.panel-title span:last-child{font-size:8px}.panel-inner{padding:3px 10px 11px}.stat-row{font-size:8px;padding:6px 0}.stat-row b{font-size:11px}.meter-head{font-size:8px;margin:8px 0 4px}.meter i{height:7px;gap:2px}.journal{display:none}.floating-note{left:12px;bottom:146px;width:153px;padding:7px;gap:6px}.note-mascot{width:28px;height:30px;font-size:19px}.floating-note strong{font-size:8px}.floating-note small{font-size:7px;margin-top:2px}.bottom-actions{bottom:21px;gap:7px}.primary{min-width:min(330px,90vw);min-height:51px;padding:10px 13px;font-size:12px}.primary i{font-size:17px}.action-note{font-size:8px}.mini-actions button{font-size:8px;padding:5px 8px}.fogbank{height:145px;bottom:-49px}.s1,.s3,.s4{display:none}.s2{top:24%;left:87%}.s5{top:30%;left:18%}.bottom-credit{display:none}.toast{bottom:95px;left:50%;right:auto;transform:translate(-50%,14px);width:max-content;max-width:92vw;text-align:center;font-size:9px}.toast.show{transform:translate(-50%,0)}}
+    @media(max-width:380px){.brand{font-size:14px}.seed-btn{font-size:7px}.intro h1{font-size:25px}.intro p{font-size:9px}.floating-note{display:none}.right-ui{width:148px;bottom:140px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <div class="scene" aria-hidden="true"></div>
+    <canvas id="effects" role="button" tabindex="0" aria-label="Interactive angel forest. Click or press Enter to grow a creature or plant."></canvas>
+    <div class="fogbank"></div><span class="pixelspark s1">✦</span><span class="pixelspark s2">✧</span><span class="pixelspark s3">✦</span><span class="pixelspark s4">✧</span><span class="pixelspark s5">✧</span>
+    <header class="header">
+      <div class="brand"><span class="logo" aria-hidden="true">♧</span>GLITCH<span class="brand-dot">.</span>GARDEN</div>
+      <nav class="mainnav" aria-label="Sections">
+        <button class="active" type="button" id="navWorld">✧ THE WORLD</button><button type="button" id="navDNA">WORLD DNA</button><button type="button" id="navHelp">HOW IT WORKS</button>
+      </nav>
+      <button class="seed-btn" id="copySeed" type="button"><span>♧</span> COPY SEED <span id="seedTiny">#0000</span></button>
+    </header>
+    <section class="intro" aria-label="About the experiment">
+      <div class="topline">✦ AN EVER-CHANGING LITTLE HEAVEN</div>
+      <h1>A LITTLE<br>WORLD THAT<br><em>BLOOMS.</em></h1>
+      <p>An 8-bit garden with no final form.<br>Every click plants a possibility.<br>Every visit leaves a little magic.</p>
+      <div class="introspark">✦ — ♡ — ✧</div>
+    </section>
+    <div class="floating-note" aria-hidden="true"><div class="note-mascot">👼</div><div><strong>HELLO, LITTLE SPROUT!</strong><small>Your world remembers<br>every tiny change.</small></div></div>
+    <aside class="right-ui" id="rightUI" aria-label="Live world data">
+      <div class="glass-panel" id="dnaCard"><div class="panel-title"><span><span class="title-icon">✿</span> WORLD DNA</span><span id="worldLabel">#001</span></div><div class="panel-inner">
+        <div class="stat-row"><span>GENERATION</span><b id="generation">0001</b></div>
+        <div class="stat-row"><span>MUTATIONS</span><b id="mutations">000</b></div>
+        <div class="stat-row"><span>CREATURES + SPROUTS</span><b id="living">009</b></div>
+        <div class="stat-row"><span>LOCAL VISITS</span><b id="visits">001</b></div>
+        <div class="meter-head"><span>WONDER INDEX</span><strong id="wonderText">32%</strong></div><div class="meter" id="wonderBar" aria-label="Wonder level"></div>
+        <div class="meter-head mint"><span>GARDEN GROWTH</span><strong id="growthText">68%</strong></div><div class="meter mint" id="growthBar" aria-label="Garden growth"></div>
+      </div></div>
+      <div class="glass-panel journal"><div class="panel-title"><span>✧ GARDEN JOURNAL</span><span>LIVE ●</span></div><div class="entries" id="journal" aria-live="polite"></div></div>
+    </aside>
+    <section class="bottom-actions" aria-label="World controls">
+      <button type="button" class="primary" id="mutate"><i>♧</i> MUTATE THE GARDEN <span aria-hidden="true">→</span></button>
+      <div class="action-note" id="helper">CLICK ANYWHERE IN THE GARDEN TO PLANT MAGIC ✦</div>
+      <div class="mini-actions"><button type="button" id="newWorld">↻ NEW WORLD</button><button type="button" id="helpBottom">? HOW TO PLAY</button></div>
+    </section>
+    <div class="about-popover" id="about" role="dialog" aria-label="How it works" aria-modal="false"><button id="closeAbout" aria-label="Close instructions" type="button">×</button><strong>✧ HOW THIS LITTLE WORLD WORKS</strong><p>① Click the garden or press the main button to grow a new pixel flower, mushroom, crystal or tiny angel.<br>② Move your pointer to leave glittering stardust.<br>③ Leave the page open and the garden sometimes blooms on its own.<br>④ Your changes are saved locally in this browser. The shared-world version is a future feature.</p></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="leafpix left" aria-hidden="true">❀</div><div class="leafpix right" aria-hidden="true">✿</div>
+    <footer class="bottom-credit">✧ EXPERIMENT 001 · LOCAL DEMO · NO TRACKING</footer>
+  </main>
+  <script>
+  (()=>{
+    'use strict';
+    const $=id=>document.getElementById(id), app=$('app'), canvas=$('effects'),ctx=canvas.getContext('2d');
+    const KEY='glitch-garden-pastel-v1';
+    const species=['pink bloom','mint sprout','star crystal','cloud mushroom','little angel','wish star'];
+    const icons=['✿','♧','✧','❀','♡','✦'];
+    let state, particles=[], width=0,height=0, ratio=1, lastPointer={x:0,y:0,t:0}, lastActive=Date.now(),lastIdle=Date.now(),lastFrame=0,toastHandle,forceReduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+    // A seed is kept stable during a visit. Decorations are deterministic; particles are visual only.
+    function rand32(seed){let t=(seed+0x6D2B79F5)|0;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296}
+    function random(n){return rand32((state.seed+Math.imul(0x9e3779b9,n+1))|0)}
+    function seed(){return Math.floor(Math.random()*899999)+100000}
+    function blank(s){return {seed:s,visits:0,mutations:0,wonder:32,growth:44,creatures:[],history:[{icon:'✿',message:'A NEW GARDEN AWAKENED',time:Date.now()}],seq:0}}
+    function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
+    function init(){try{state=JSON.parse(localStorage.getItem(KEY)||'null')}catch{}if(!state||!Number.isInteger(state.seed)||!Array.isArray(state.creatures)||!Array.isArray(state.history))state=blank(seed());state.visits=clamp((state.visits||0)+1,1,999999);state.creatures=state.creatures.slice(-55);state.seq=Number(state.seq)||0;save();refresh()}
+    function fmt(v,len=3){return String(v|0).padStart(len,'0')}
+    function meter(el,value){let full=Math.round(clamp(value,0,100)/100*12);el.replaceChildren();for(let i=0;i<12;i++){let p=document.createElement('i');if(i<full)p.className='filled';el.appendChild(p)}}
+    function refresh(){$('generation').textContent=fmt(Math.floor(state.mutations/7)+1,4);$('mutations').textContent=fmt(state.mutations);$('living').textContent=fmt(state.creatures.length+9);$('visits').textContent=fmt(state.visits);$('seedTiny').textContent='#'+String(state.seed).slice(-4);$('worldLabel').textContent='#'+String(state.seed).slice(-3);$('wonderText').textContent=Math.round(state.wonder)+'%';$('growthText').textContent=Math.round(state.growth)+'%';meter($('wonderBar'),state.wonder);meter($('growthBar'),state.growth);
+      let j=$('journal');j.replaceChildren();for(const it of state.history.slice(0,4)){let row=document.createElement('div');row.className='entry';let icon=document.createElement('span');icon.textContent=icons.includes(it.icon)?it.icon:'✦';let msg=document.createElement('span');msg.className='entry-text';msg.textContent=it.message;let tm=document.createElement('span');tm.className='entry-time';let secs=(Date.now()-it.time)/1000;tm.textContent=secs<60?'NOW':secs<3600?Math.floor(secs/60)+'M':'OLD';row.append(icon,msg,tm);j.append(row)}}
+    function notice(s){let t=$('toast');t.textContent=s;t.classList.add('show');clearTimeout(toastHandle);toastHandle=setTimeout(()=>t.classList.remove('show'),1700)}
+    function addHistory(message,icon){state.history.unshift({message,icon,time:Date.now()});state.history=state.history.slice(0,8)}
+    function sprinkle(x,y,n=18){if(forceReduced)return;for(let i=0;i<n;i++){let angle=Math.random()*Math.PI*2,sp=.5+Math.random()*2.5;particles.push({x,y,vx:Math.cos(angle)*sp,vy:Math.sin(angle)*sp-.8,age:0,life:25+Math.random()*35,size:1+Math.random()*2,hue:Math.random()})}particles=particles.slice(-200)}
+    function bounds(){if(width<=700){return {l:width*.11,r:width*.88,t:height*.31,b:height*.75}}return {l:width*.31,r:width*.77,t:height*.23,b:height*.79}}
+    function mutate(x,y,kind='button'){
+      if(!state)return;lastActive=Date.now();lastIdle=lastActive;
+      const b=bounds();x=clamp(x,b.l,b.r);y=clamp(y,b.t,b.b);
+      const i=state.seq++,s=Math.floor(random(i*6+1)*species.length);
+      const p={x:x/width,y:y/height,type:s,born:Date.now(),variant:Math.floor(random(i*6+5)*3)};
+      state.creatures.push(p);state.creatures=state.creatures.slice(-55);
+      state.mutations++;state.wonder=clamp(state.wonder+1+random(i*6+3)*3,0,100);state.growth=clamp(state.growth+1+random(i*6+4)*2,0,100);
+      addHistory(kind==='idle'?'THE GARDEN GREW QUIETLY':'A '+species[s].toUpperCase()+' APPEARED',icons[s]);sprinkle(x,y,25);save();refresh();$('helper').textContent=kind==='idle'?'THE WORLD IS BLOOMING ALL BY ITSELF ✧':'A LITTLE PIECE OF MAGIC WAS BORN ✦';
+    }
+    // Designed to be pixelish rectangles while still feeling soft and delicate.
+    function r(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),Math.max(1,Math.round(w)),Math.max(1,Math.round(h)))}
+    function plus(x,y,color='#fff9e3',s=3){r(x-s,y,s*2+1,2,color);r(x,y-s,2,s*2+1,color);r(x+1,y+1,2,2,'#fff')}
+    function drawSprite(item,now){let x=item.x*width,y=item.y*height,sc=Math.max(.7,Math.min(1.35,width/1050)),a=(now-item.born)/260,scale=clamp(a,.2,1);ctx.save();ctx.translate(x,y);ctx.scale(sc*scale,sc*scale);let pix=(x,y,w,h,c)=>r(x,y,w,h,c),sw=Math.sin(now/1100+item.variant)*2;
+      // tiny shadow
+      pix(-15,16,30,3,'#baadc255');
+      switch(item.type){
+        case 0: // pink bloom
+          pix(-2,-6,4,23,'#7cbca2');pix(2,5,10,3,'#81c6a5');pix(-12,-17+sw,25,9,'#eea6c6');pix(-7,-25+sw,14,25,'#f7b7d4');pix(-16,-9+sw,32,8,'#f7b7d4');pix(-5,-13+sw,11,10,'#ffe19c');pix(-2,-9+sw,5,4,'#fff2c1');break;
+        case 1: // mint sprout
+          pix(-2,-6,5,23,'#6ba89d');pix(-15,-21+sw,13,12,'#a1e0bc');pix(-10,-26+sw,11,12,'#cff0d0');pix(2,-26+sw,12,15,'#8edab3');pix(10,-20+sw,10,10,'#bcf2ce');pix(-5,9,15,4,'#80bba0');break;
+        case 2: // crystal
+          pix(-9,-8,18,25,'#bed8ff');pix(-5,-23,10,15,'#c8c3ff');pix(-14,-5,6,16,'#eac4fb');pix(9,-3,7,16,'#e3b8f1');pix(-3,-18,5,27,'#fef0ff');pix(-13,15,28,4,'#a8bcd5');plus(14,-26,'#fff',3);break;
+        case 3: // shroom
+          pix(-4,-4,8,20,'#fff4dc');pix(-13,-13,26,13,'#e8a1c0');pix(-9,-19,18,10,'#f4bed6');pix(-7,-10,6,4,'#ffedf7');pix(5,-9,5,5,'#fff5e5');pix(-6,8,4,3,'#9f8dac');pix(3,8,4,3,'#9f8dac');break;
+        case 4: // winged baby angel
+          pix(-20,-10,11,13,'#fff7fa');pix(9,-10,11,13,'#fff7fa');pix(-17,-6,8,6,'#e4d6fb');pix(9,-6,8,6,'#e4d6fb');pix(-10,-15,20,28,'#fff5f8');pix(-8,-20,16,10,'#fff9ec');pix(-12,-25,24,4,'#ffedac');pix(-8,-28,16,3,'#ffe6ac');pix(-6,-5,3,4,'#75668e');pix(5,-5,3,4,'#75668e');pix(-9,2,5,3,'#f3bad0');pix(5,2,5,3,'#f3bad0');break;
+        default: // wish star
+          pix(-4,-25+sw,9,45,'#ffecae');pix(-21,-9+sw,43,10,'#ffe1ad');pix(-14,-18+sw,30,28,'#ffedbc');pix(-5,-11+sw,10,13,'#fffafa');plus(17,-23,'#ffffff',3);break;
+      }
+      ctx.restore();
+    }
+    function render(now){ctx.clearRect(0,0,width,height);if(!state)return;
+      // Sky particles are intentionally sparse; most atmosphere comes from the illustrated scene.
+      for(let i=0;i<26;i++){let x=(random(i*4+500)*width+Math.sin(now/4600+i)*10),y=random(i*4+501)*height*.78,blink=(Math.sin(now/1400+i*3)+1)/2;if(blink>.68){ctx.globalAlpha=(blink-.65)*.7;plus(x,y,i%3===0?'#fff7cc':'#ffffff',i%4===0?3:2)}}ctx.globalAlpha=1;
+      for(const e of state.creatures)drawSprite(e,now);
+      for(let i=particles.length-1;i>=0;i--){let p=particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.025;p.age++;let opacity=Math.max(0,1-p.age/p.life);ctx.globalAlpha=opacity;r(p.x,p.y,p.size*2,p.size*2,p.hue>.52?'#fff9d3':'#ffbdd9');if(p.age>=p.life)particles.splice(i,1)}ctx.globalAlpha=1;
+    }
+    function resize(){const box=app.getBoundingClientRect();width=box.width;height=box.height;ratio=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);canvas.style.width=width+'px';canvas.style.height=height+'px';ctx.setTransform(ratio,0,0,ratio,0,0);ctx.imageSmoothingEnabled=false}
+    function tick(now){if(now-lastFrame>(forceReduced?250:34)){render(now);lastFrame=now}requestAnimationFrame(tick)}
+    // Restrict world clicks to the illustrated region rather than links, panels or text.
+    function at(e){const b=canvas.getBoundingClientRect();return {x:e.clientX-b.left,y:e.clientY-b.top}}
+    function activeArea(x,y){const b=bounds();return x>b.l&&x<b.r&&y>b.t&&y<b.b}
+    canvas.addEventListener('pointerdown',e=>{let p=at(e);if(activeArea(p.x,p.y)){mutate(p.x,p.y,'click');notice('✿ A TINY MIRACLE APPEARED')}else if(width>700)notice('✧ CLICK THE FLOATING GARDEN TO GROW MAGIC')});
+    canvas.addEventListener('pointermove',e=>{if(forceReduced)return;let p=at(e),now=performance.now();if(now-lastPointer.t>54&&activeArea(p.x,p.y)&&Math.hypot(p.x-lastPointer.x,p.y-lastPointer.y)>13){sprinkle(p.x,p.y,1);lastPointer={...p,t:now}}});
+    canvas.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();let b=bounds();mutate((b.l+b.r)/2,(b.t+b.b)/2,'key');notice('✦ THE GARDEN HAS MUTATED')}});
+    $('mutate').addEventListener('click',()=>{let b=bounds();const i=state.seq*13+9;mutate(b.l+(b.r-b.l)*(.2+.6*random(i)),b.t+(b.b-b.t)*(.25+.5*random(i+1)),'button');notice('✿ NEW LIFE IN THE CLOUDS')});
+    $('newWorld').addEventListener('click',()=>{if(!confirm('Start a fresh local cloud garden? Your current garden will be replaced.'))return;state=blank(seed());state.visits=1;save();refresh();particles=[];$('helper').textContent='A BRAND-NEW LITTLE WORLD HAS AWAKENED ✧';notice('✧ A NEW WORLD BEGINS')});
+    $('copySeed').addEventListener('click',async()=>{let str=String(state.seed);try{await navigator.clipboard.writeText(str);notice('✦ WORLD SEED COPIED: '+str)}catch{prompt('Copy your world seed:',str)}});
+    function showHelp(show){$('about').classList.toggle('open',show);$('navHelp').classList.toggle('active',show);$('navWorld').classList.toggle('active',!show)}
+    $('navHelp').addEventListener('click',()=>showHelp(!$('about').classList.contains('open')));$('helpBottom').addEventListener('click',()=>showHelp(!$('about').classList.contains('open')));$('closeAbout').addEventListener('click',()=>showHelp(false));$('navWorld').addEventListener('click',()=>showHelp(false));$('navDNA').addEventListener('click',()=>{showHelp(false);$('dnaCard').animate([{transform:'translateY(0)'},{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:400});notice('WORLD DNA • YOUR LOCAL GARDEN')});
+    setInterval(()=>{const now=Date.now();if(document.visibilityState==='visible'&&now-lastActive>22000&&now-lastIdle>23000){const b=bounds(),n=state.seq*7+800;mutate(b.l+(b.r-b.l)*random(n),b.t+(b.b-b.t)*random(n+1),'idle');lastActive=now-17000;lastIdle=now}},4000);
+    window.addEventListener('resize',resize);resize();init();requestAnimationFrame(tick);
+  })();
+  </script>
+</body>
+</html>
