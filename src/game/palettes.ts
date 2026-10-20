@@ -3,143 +3,102 @@ import type { EntityType, PaletteId } from './types.ts';
 /** Colors for one sprite archetype: [primary, secondary, accent, dark]. */
 export type SpriteColors = readonly [string, string, string, string];
 
+/**
+ * A palette recolors sprites, sparkles and particles. The illustrated scene
+ * behind the canvas is static artwork, so palettes only touch what we draw.
+ */
 export interface Palette {
   id: PaletteId;
   name: string;
-  sky: string;
-  skyBand: string;
-  terrain: string;
-  terrainDeep: string;
-  horizon: string;
-  star: string;
-  starDim: string;
-  moon: string;
-  moonShade: string;
-  skyline: string;
-  glitch: string;
-  cursor: string;
+  sparkle: readonly [string, string];
   particle: readonly [string, string];
+  cursor: string;
+  glitch: string;
+  shadow: string;
   sprites: Record<EntityType, SpriteColors>;
 }
 
-const midnight: Palette = {
+const angel: Palette = {
   id: 0,
-  name: 'MIDNIGHT',
-  sky: '#10152d',
-  skyBand: '#141a36',
-  terrain: '#23284c',
-  terrainDeep: '#1a1f3d',
-  horizon: '#2d3360',
-  star: '#f5f4e8',
-  starDim: '#9fa9c7',
-  moon: '#bb9fff',
-  moonShade: '#8d74d6',
-  skyline: '#171c3a',
-  glitch: '#7ceade',
-  cursor: '#dbff79',
-  particle: ['#7ceade', '#ff8fa7'],
+  name: 'ANGEL',
+  sparkle: ['#fff7cc', '#ffffff'],
+  particle: ['#fff9d3', '#ffbdd9'],
+  cursor: '#e78eae',
+  glitch: '#fff2f7',
+  shadow: '#baadc2',
   sprites: {
-    flower: ['#ff8fa7', '#dbff79', '#f5f4e8', '#4b2d4a'],
-    robot: ['#9fa9c7', '#7ceade', '#ff8fa7', '#2a3057'],
-    crystal: ['#bb9fff', '#7ceade', '#f5f4e8', '#4a3c80'],
-    shroom: ['#ff8fa7', '#f5f4e8', '#dbff79', '#5a2f45'],
-    portal: ['#bb9fff', '#7ceade', '#10152d', '#3a2f6d'],
-    totem: ['#dbff79', '#ff8fa7', '#7ceade', '#3b3f2a'],
-    tree: ['#8fe07a', '#dbff79', '#4b7a3a', '#5a3d2b'],
-    slime: ['#7ceade', '#dbff79', '#f5f4e8', '#235c5a'],
+    flower: ['#f7b7d4', '#81c6a5', '#ffe19c', '#7cbca2'],
+    robot: ['#d9d3f3', '#e4d6fb', '#ffd2e2', '#9f8dac'],
+    crystal: ['#bed8ff', '#c8c3ff', '#fef0ff', '#a8bcd5'],
+    shroom: ['#e8a1c0', '#fff4dc', '#ffedf7', '#9f8dac'],
+    portal: ['#ffe1ad', '#ffedbc', '#fffafa', '#e0c08a'],
+    totem: ['#fff5f8', '#ffe6ac', '#f3bad0', '#b7a3c9'],
+    tree: ['#a1e0bc', '#cff0d0', '#8edab3', '#6ba89d'],
+    slime: ['#bcf2ce', '#dcffeb', '#ffffff', '#80bba0'],
   },
 };
 
-const sunset: Palette = {
+const dusk: Palette = {
   id: 1,
-  name: 'SUNSET',
-  sky: '#2b1536',
-  skyBand: '#3d1b45',
-  terrain: '#4a2340',
-  terrainDeep: '#3a1b33',
-  horizon: '#6a2d4f',
-  star: '#ffe9c4',
-  starDim: '#c98e8a',
-  moon: '#ffb05c',
-  moonShade: '#e07a3e',
-  skyline: '#321a3d',
-  glitch: '#ffb05c',
-  cursor: '#ffe9c4',
-  particle: ['#ffb05c', '#ff6f91'],
+  name: 'DUSK',
+  sparkle: ['#ffd9b3', '#fff1e6'],
+  particle: ['#ffc9a3', '#d7b7ff'],
+  cursor: '#c48ad9',
+  glitch: '#f3e3ff',
+  shadow: '#a893b8',
   sprites: {
-    flower: ['#ff6f91', '#ffb05c', '#ffe9c4', '#4a1f33'],
-    robot: ['#c98e8a', '#ffe9c4', '#ff6f91', '#3a1b33'],
-    crystal: ['#ffb05c', '#ffe9c4', '#fff6e0', '#7a3f2a'],
-    shroom: ['#ff6f91', '#ffe9c4', '#ffb05c', '#4a1f33'],
-    portal: ['#ff6f91', '#ffb05c', '#2b1536', '#5a2a4a'],
-    totem: ['#ffb05c', '#ff6f91', '#ffe9c4', '#4a2a1e'],
-    tree: ['#e07a3e', '#ffb05c', '#8c3b2a', '#4a2318'],
-    slime: ['#ffb05c', '#ffe9c4', '#fff6e0', '#7a4a2a'],
+    flower: ['#ffb3a7', '#a3a8e6', '#ffe6a3', '#9b7fb6'],
+    robot: ['#c9bde8', '#e9d6ff', '#ffb3a7', '#8a74a8'],
+    crystal: ['#d7b7ff', '#f3e3ff', '#ffffff', '#9b7fb6'],
+    shroom: ['#ffb3a7', '#fff1e6', '#ffe6a3', '#8a74a8'],
+    portal: ['#ffd9b3', '#ffe6a3', '#fff8ee', '#d1a46f'],
+    totem: ['#fff1e6', '#ffd9b3', '#d7b7ff', '#a893b8'],
+    tree: ['#b6d7c9', '#dbeee6', '#9ec6b6', '#769a8f'],
+    slime: ['#d7b7ff', '#f3e3ff', '#ffffff', '#9b7fb6'],
   },
 };
 
-const handheld: Palette = {
+const mint: Palette = {
   id: 2,
-  name: 'HANDHELD',
-  sky: '#0f380f',
-  skyBand: '#1b4a1b',
-  terrain: '#306230',
-  terrainDeep: '#214a21',
-  horizon: '#3f7a3f',
-  star: '#9bbc0f',
-  starDim: '#8bac0f',
-  moon: '#9bbc0f',
-  moonShade: '#8bac0f',
-  skyline: '#173f17',
-  glitch: '#9bbc0f',
-  cursor: '#e0f8d0',
-  particle: ['#9bbc0f', '#e0f8d0'],
+  name: 'MINT',
+  sparkle: ['#eafff3', '#ffffff'],
+  particle: ['#bdf5d6', '#fff9d3'],
+  cursor: '#6fbf9a',
+  glitch: '#eafff3',
+  shadow: '#9fc3b2',
   sprites: {
-    flower: ['#9bbc0f', '#e0f8d0', '#e0f8d0', '#0f380f'],
-    robot: ['#8bac0f', '#e0f8d0', '#9bbc0f', '#0f380f'],
-    crystal: ['#e0f8d0', '#9bbc0f', '#e0f8d0', '#306230'],
-    shroom: ['#9bbc0f', '#e0f8d0', '#8bac0f', '#0f380f'],
-    portal: ['#9bbc0f', '#e0f8d0', '#0f380f', '#306230'],
-    totem: ['#8bac0f', '#9bbc0f', '#e0f8d0', '#0f380f'],
-    tree: ['#8bac0f', '#9bbc0f', '#306230', '#0f380f'],
-    slime: ['#9bbc0f', '#e0f8d0', '#e0f8d0', '#306230'],
+    flower: ['#fff3b0', '#8edab3', '#ffffff', '#6fbf9a'],
+    robot: ['#cfe9dc', '#eafff3', '#fff3b0', '#80a894'],
+    crystal: ['#bdf5d6', '#eafff3', '#ffffff', '#88c9a7'],
+    shroom: ['#ffd9e6', '#fffaf0', '#fff3b0', '#80a894'],
+    portal: ['#fff3b0', '#fffaf0', '#ffffff', '#d4c57a'],
+    totem: ['#fffaf0', '#fff3b0', '#bdf5d6', '#9fc3b2'],
+    tree: ['#8edab3', '#bdf5d6', '#6fbf9a', '#4f8f74'],
+    slime: ['#bdf5d6', '#eafff3', '#ffffff', '#6fbf9a'],
   },
 };
 
-const vapor: Palette = {
+const candy: Palette = {
   id: 3,
-  name: 'VAPOR',
-  sky: '#1a0b2e',
-  skyBand: '#241040',
-  terrain: '#2e1a52',
-  terrainDeep: '#22123d',
-  horizon: '#ff71ce',
-  star: '#fdfdff',
-  starDim: '#b967ff',
-  moon: '#01cdfe',
-  moonShade: '#0190b8',
-  skyline: '#1f0f38',
-  glitch: '#ff71ce',
-  cursor: '#fffb96',
-  particle: ['#01cdfe', '#ff71ce'],
+  name: 'CANDY',
+  sparkle: ['#fff0f6', '#ffffff'],
+  particle: ['#ff9ec6', '#9fd8ff'],
+  cursor: '#ff6fa8',
+  glitch: '#ffe6f1',
+  shadow: '#c9a0bb',
   sprites: {
-    flower: ['#ff71ce', '#fffb96', '#fdfdff', '#4a1f5e'],
-    robot: ['#b967ff', '#01cdfe', '#ff71ce', '#2a1448'],
-    crystal: ['#01cdfe', '#fdfdff', '#fffb96', '#3a2a7a'],
-    shroom: ['#ff71ce', '#fdfdff', '#fffb96', '#4a1f5e'],
-    portal: ['#01cdfe', '#ff71ce', '#1a0b2e', '#3a2a7a'],
-    totem: ['#fffb96', '#ff71ce', '#01cdfe', '#3a2a3a'],
-    tree: ['#05ffa1', '#fffb96', '#0b8a5a', '#4a2a5e'],
-    slime: ['#05ffa1', '#fffb96', '#fdfdff', '#1f5e4a'],
+    flower: ['#ff9ec6', '#9fd8ff', '#fff4a3', '#d96a9b'],
+    robot: ['#dfe6ff', '#9fd8ff', '#ff9ec6', '#8c93c9'],
+    crystal: ['#9fd8ff', '#dfe6ff', '#ffffff', '#6fa9d9'],
+    shroom: ['#ff9ec6', '#fff4a3', '#ffffff', '#d96a9b'],
+    portal: ['#fff4a3', '#ffe27a', '#ffffff', '#d9b84a'],
+    totem: ['#ffffff', '#fff4a3', '#ff9ec6', '#c9a0bb'],
+    tree: ['#a7f0c5', '#d6ffe5', '#79d6a3', '#5aa47f'],
+    slime: ['#9fd8ff', '#dfe6ff', '#ffffff', '#6fa9d9'],
   },
 };
 
-export const PALETTES: readonly [Palette, Palette, Palette, Palette] = [
-  midnight,
-  sunset,
-  handheld,
-  vapor,
-];
+export const PALETTES: readonly [Palette, Palette, Palette, Palette] = [angel, dusk, mint, candy];
 
 export function getPalette(id: PaletteId): Palette {
   return PALETTES[id];
